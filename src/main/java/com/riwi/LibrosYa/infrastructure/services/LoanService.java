@@ -1,5 +1,7 @@
 package com.riwi.LibrosYa.infrastructure.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,9 +11,13 @@ import org.springframework.stereotype.Service;
 import com.riwi.LibrosYa.api.dto.request.LoanRequest;
 import com.riwi.LibrosYa.api.dto.response.LoanResponse;
 import com.riwi.LibrosYa.domain.model.Loan;
+import com.riwi.LibrosYa.domain.repositories.BookRepository;
 import com.riwi.LibrosYa.domain.repositories.LoanRepository;
+import com.riwi.LibrosYa.domain.repositories.UserRepository;
 import com.riwi.LibrosYa.infrastructure.abstracts.ILoanService;
+import com.riwi.LibrosYa.infrastructure.mappers.BookMapper;
 import com.riwi.LibrosYa.infrastructure.mappers.LoanMapper;
+import com.riwi.LibrosYa.infrastructure.mappers.UserMapper;
 import com.riwi.LibrosYa.infrastructure.persistence.LoanEntity;
 import com.riwi.LibrosYa.utils.exceptions.IdNotFoundException;
 
@@ -19,13 +25,25 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class LoanService implements ILoanService{
+public class LoanService implements ILoanService {
 
     @Autowired
     private final LoanRepository loanRepository;
 
     @Autowired
     private final LoanMapper loanMapper;
+
+    @Autowired
+    private final UserRepository userRepository;
+
+    @Autowired
+    private final BookRepository bookRepository;
+
+    @Autowired
+    private final UserMapper userMapper;
+
+    @Autowired
+    private final BookMapper bookMapper;
 
     @Override
     public Page<LoanResponse> getAll(int size, int page) {
@@ -34,7 +52,8 @@ public class LoanService implements ILoanService{
         }
         Pageable pageable = PageRequest.of(page, size);
 
-        return this.loanRepository.findAll(pageable).map(loan -> loanMapper.loanToLoanResponse(loanMapper.loanEntityToLoan(loan)));
+        return this.loanRepository.findAll(pageable)
+                .map(loan -> loanMapper.loanToLoanResponse(loanMapper.loanEntityToLoan(loan)));
     }
 
     @Override
@@ -44,16 +63,23 @@ public class LoanService implements ILoanService{
         return loanMapper.loanToLoanResponse(loan);
     }
 
-    private LoanEntity findLoanEntity(Long id){
+    private LoanEntity findLoanEntity(Long id) {
 
-        return this.loanRepository.findById(id).orElseThrow(()-> new IdNotFoundException("loans"));
+        return this.loanRepository.findById(id).orElseThrow(() -> new IdNotFoundException("loans"));
     }
 
     @Override
     public LoanResponse create(LoanRequest request) {
         Loan loan = loanMapper.loanRequestToLoan(request);
 
-        return loanMapper.loanToLoanResponse(loanMapper.loanEntityToLoan(this.loanRepository.save(loanMapper.loanToLoanEntity(loan))));
+        loan.setUser(userMapper.userEntityToUser(
+                this.userRepository.findById(request.getUserId()).orElseThrow(() -> new IdNotFoundException("users"))));
+
+        loan.setBook(bookMapper.bookEntityToBook(
+                this.bookRepository.findById(request.getBookId()).orElseThrow(() -> new IdNotFoundException("books"))));
+
+        return loanMapper.loanToLoanResponse(
+                loanMapper.loanEntityToLoan(this.loanRepository.save(loanMapper.loanToLoanEntity(loan))));
     }
 
     @Override
@@ -61,7 +87,14 @@ public class LoanService implements ILoanService{
         Loan loan = loanMapper.loanEntityToLoan(findLoanEntity(id));
         loan = loanMapper.loanRequestToLoan(request);
 
-        return loanMapper.loanToLoanResponse(loanMapper.loanEntityToLoan(this.loanRepository.save(loanMapper.loanToLoanEntity(loan))));
+        loan.setUser(userMapper.userEntityToUser(
+                this.userRepository.findById(request.getUserId()).orElseThrow(() -> new IdNotFoundException("users"))));
+
+        loan.setBook(bookMapper.bookEntityToBook(
+                this.bookRepository.findById(request.getBookId()).orElseThrow(() -> new IdNotFoundException("books"))));
+
+        return loanMapper.loanToLoanResponse(
+                loanMapper.loanEntityToLoan(this.loanRepository.save(loanMapper.loanToLoanEntity(loan))));
     }
 
     @Override
@@ -70,5 +103,17 @@ public class LoanService implements ILoanService{
 
         this.loanRepository.delete(loanEntity);
     }
-    
+
+    @Override
+    public List<LoanResponse> getLoansByUserId(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getLoansByUserId'");
+    }
+
+    @Override
+    public List<LoanResponse> getLoansByBookId(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getLoansByBookId'");
+    }
+
 }
