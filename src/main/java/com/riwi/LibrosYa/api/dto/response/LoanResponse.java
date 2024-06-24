@@ -18,6 +18,6 @@ public class LoanResponse {
     private LocalDate loanDate;
     private LocalDate returnDate;
     private LoanStatus status;
-    private String bookTitle;
-    private String userName;
+    private Long bookId;
+    private Long userId;
 }

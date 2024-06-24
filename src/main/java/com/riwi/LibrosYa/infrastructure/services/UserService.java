@@ -25,7 +25,7 @@ public class UserService implements IUserService{
     private final UserRepository userRepository;
 
     @Autowired
-    private final UserMapper userMapper = UserMapper.INSTANCE;
+    private final UserMapper userMapper;
 
     @Override
     public Page<UserResponse> getAll(int size, int page) {

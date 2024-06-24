@@ -17,6 +17,6 @@ public class ReservationResponse {
     private Long id;
     private LocalDate reservationDate;
     private ReservationStatus status;
-    private String bookTitle;
-    private String userName;
+    private Long bookId;
+    private Long userId;
 }
