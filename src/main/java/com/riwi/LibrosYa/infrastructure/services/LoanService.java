@@ -106,14 +106,20 @@ public class LoanService implements ILoanService {
 
     @Override
     public List<LoanResponse> getLoansByUserId(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getLoansByUserId'");
+
+        return this.loanRepository.findByUserId(id).stream()
+                .map(loan -> loanMapper.loanToLoanResponse(
+                        loanMapper.loanEntityToLoan(loan)))
+                .toList();
     }
 
     @Override
     public List<LoanResponse> getLoansByBookId(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getLoansByBookId'");
+
+        return this.loanRepository.findByBookId(id).stream()
+                .map(loan -> loanMapper.loanToLoanResponse(
+                        loanMapper.loanEntityToLoan(loan)))
+                .toList();
     }
 
 }

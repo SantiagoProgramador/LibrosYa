@@ -1,5 +1,7 @@
 package com.riwi.LibrosYa.api.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -29,11 +31,11 @@ import lombok.AllArgsConstructor;
 @RequestMapping(path = "/loans")
 @AllArgsConstructor
 public class LoanController {
-    
-    @Autowired
-    private final ILoanService iLoanService;
 
-     @Operation(summary = "Show the loans by pagination")
+  @Autowired
+  private final ILoanService iLoanService;
+
+  @Operation(summary = "Show the loans by pagination")
   @ApiResponse(responseCode = "400", description = "When the params send are invalid", content = {
       @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)) })
   @GetMapping
@@ -78,5 +80,23 @@ public class LoanController {
   public ResponseEntity<Void> deleteLoan(@PathVariable Long id) {
     this.iLoanService.delete(id);
     return ResponseEntity.noContent().build();
+  }
+
+  @Operation(summary = "show the loans of the book given")
+  @ApiResponse(responseCode = "400", description = "When the id given is not found", content = {
+      @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)) })
+  @GetMapping(path = "/book/{id}")
+  public ResponseEntity<List<LoanResponse>> showLoansByBookId(@PathVariable Long id) {
+
+    return ResponseEntity.ok(this.iLoanService.getLoansByBookId(id));
+  }
+
+  @Operation(summary = "show the loans of the user given")
+  @ApiResponse(responseCode = "400", description = "When the id given is not found", content = {
+      @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)) })
+  @GetMapping(path = "/user/{id}")
+  public ResponseEntity<List<LoanResponse>> showLoansByUserId(@PathVariable Long id) {
+
+    return ResponseEntity.ok(this.iLoanService.getLoansByUserId(id));
   }
 }
